@@ -1,3 +1,4 @@
+import { Uuid } from "../../../shared/domain/value-objects/uuid.vo"
 import { Category } from "../category.entity"
 
 describe('Category unit tests', () => {
@@ -12,7 +13,7 @@ describe('Category unit tests', () => {
     category = new Category({name: 'Movie'})
 
     // Assert
-    expect(category.category_id).toBeUndefined()
+    expect(category.id).toBeInstanceOf(Uuid)
     expect(category.name).toBe('Movie')
     expect(category.description).toBeNull()
     expect(category.is_active).toBeTruthy()
@@ -32,11 +33,22 @@ describe('Category unit tests', () => {
 describe('Create command', () => {
   test('should create a category', () =>{
     const category = Category.create({name: 'Movie'})
-    expect(category.category_id).toBeUndefined()
+    expect(category.id).toBeInstanceOf(Uuid)
     expect(category.name).toBe('Movie')
     expect(category.description).toBeNull()
     expect(category.is_active).toBeTruthy()
     expect(category.created_at).toBeInstanceOf(Date)
+  })
+})
+
+describe('Instances of uuid', () => {
+  const arrange = [{ id: null }, { id: undefined }, { id: new Uuid() }]
+
+  test.each(arrange)('id = %j', ({ id }) => {
+    const category = new Category({
+      name: 'Movie',
+      id: id as any,
+    })
   })
 })
 
@@ -83,3 +95,9 @@ describe('Category to Json', () => {
   })
 })
 
+describe('Category using validators', () => {
+  test('should generate a new category and validate', () => {
+    const category = Category.create({ name: 'Movie'})
+    expect(Category.validate(category)).toBeTruthy();
+  }) 
+})
